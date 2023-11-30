@@ -114,6 +114,7 @@ public class NavGrid : MonoBehaviour
             for (int b = 0; b < gridHeight; b++)
             {
                 tiles[a, b] = new Tile(a,b,true);
+                tiles[a, b].isWalkable = false;
             }
         }
         GenerateBlockers();
@@ -124,15 +125,74 @@ public class NavGrid : MonoBehaviour
     /// </summary>
     private void GenerateBlockers()
     {
+        CarvePath(1, 1);
         foreach (Tile tile in tiles)
         {
-            if (tile.x > 0 & tile.x < gridWidth - 1 && tile.y > 0 && tile.y < gridHeight - 1)
+            if (tile.x == 0 || tile.x == gridWidth - 1 || tile.y == 0 || tile.y == gridHeight - 1)
             {
-                tile.isWalkable=(Random.value < 0.5f);
+                tile.isWalkable = true;//(Random.value < 0.5f);
             }
+            
+            
             PlaceTile(tile.x, tile.y, (tile.x.ToString() + " " + tile.y.ToString()), tile.isWalkable);
         }
+        
+        
     }
+    private void CarvePath(int x, int y)
+    {
+        tiles[x, y].isWalkable = true;
+
+        // Define the order in which we'll explore neighboring cells
+        int[] directions = { 1, 2, 3, 4 };
+        ShuffleArray(directions);
+
+        foreach (int dir in directions)
+        {
+            int dx = 0, dy = 0;
+            switch (dir)
+            {
+                case 1: // Up
+                    dy = -2;
+                    break;
+                case 2: // Right
+                    dx = 2;
+                    break;
+                case 3: // Down
+                    dy = 2;
+                    break;
+                case 4: // Left
+                    dx = -2;
+                    break;
+            }
+
+            int newX = x + dx;
+            int newY = y + dy;
+
+            if (IsInBounds(newX, newY) && tiles[newX, newY].isWalkable == false)
+            {
+                tiles[x + dx / 2, y + dy / 2].isWalkable = true;
+                CarvePath(newX, newY);
+            }
+        }
+    }
+
+    private bool IsInBounds(int x, int y)
+    {
+        return x > 0 && x < gridWidth - 1 && y > 0 && y < gridHeight - 1;
+    }
+
+    private void ShuffleArray(int[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i+1);
+            int temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+    }
+
 
     /// <summary>
     /// place gameobjects for each tile in the grid and assign correct visual material

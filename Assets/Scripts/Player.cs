@@ -4,21 +4,31 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
-    private List<Tile> currentPath = new List<Tile>();
-    private int _currentPathIndex = 0;
-    private List<Vector2> pathSmoothed = new List<Vector2>();
-    private Tile[,] tileGrid;
-    private bool moving;
-    private bool useSmoothing = true;
+    public List<Tile> currentPath = new List<Tile>();
+    public int _currentPathIndex = 0;
+    public List<Vector2> pathSmoothed = new List<Vector2>();
+    public Tile[,] tileGrid;
+    public bool moving;
+    public bool useSmoothing = true;
+    public bool isEnemy = false;
+
+    public bool isKilled = false;
 
     [SerializeField]
-    private NavGrid _grid;
+    public NavGrid _grid;
     [SerializeField]
-    private float _speed = 10.0f;
+    public float _speed = 10.0f;
+
     
+
+    public void Died()
+    {
+        transform.localScale = Vector3.zero;
+    }
 
     void Update()
     {
+        
         CheckInput();
         Traverse();
         DebugMoving();
@@ -40,7 +50,7 @@ public class Player : MonoBehaviour
     }
 
     //visual debug for moving, could be modified to trigger character animations etc.
-    private void DebugMoving()
+    public void DebugMoving()
     {
         if (moving && gameObject.GetComponent<MeshRenderer>().sharedMaterial.color != Color.green)
         {
@@ -52,7 +62,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void CheckInput()
+    public void CheckInput()
     {
         // Check Input
         if (Input.GetMouseButtonUp(0))
@@ -72,7 +82,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Traverse()
+    public void Traverse()
     {
         // because both smooth and unsmooth paths are generated can swap between both while moving
         if(!useSmoothing)
